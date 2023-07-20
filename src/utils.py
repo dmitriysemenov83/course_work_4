@@ -36,3 +36,5 @@ class Vacancy:
 
     def __eq__(self, other):
         return self.salary == other.salary
+
+# проверка Pull Request
