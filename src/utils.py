@@ -1,40 +1,51 @@
-from abc import ABC, abstractmethod
-import requests
-import json
+from classes import HHVacancy, SJVacancy
 
 
-class GeneralAPI(ABC):
+def get_salary_from_hh_vacancy(salary_dict):
+    """
+        Получает зарплату из словаря вакансий HeadHunter.
 
-    @abstractmethod
-    def get_vacancies(self):
-        pass
+        Возвращает:
+        Возвращает 0, если словарь равен None.
+    """
+    if salary_dict is not None:
 
+        if salary_dict['from'] is not None:
+            return salary_dict['from']
+        else:
+            return salary_dict['to']
 
-class HeadHunterAPI(GeneralAPI):
-
-    def get_vacancies(self):
-        # Retrieve job vacancies from the HeadHunter API
-        pass
-
-
-class SuperJobAPI(GeneralAPI):
-
-    def get_vacancies(self):
-        # Retrieve job vacancies from the SuperJob API
-        pass
+    return 0
 
 
-class Vacancy:
-    def __init__(self, title, link, salary, description):
-        self.title = title
-        self.link = link
-        self.salary = salary
-        self.description = description
+def get_vacancy_list(jsreader):
+    """
+        Преобразует объект JSON в список объектов Vacancy.
 
-    def __lt__(self, other):
-        return self.salary < other.salary
+        Возвращает:
+            Список объектов вакансии.
+    """
+    vacancies_list = []
 
-    def __eq__(self, other):
-        return self.salary == other.salary
+    for item in jsreader:
 
-# проверка Pull Request
+        if item['source'] == 'hh':
+
+            vacancies_list.append(
+                HHVacancy(
+                    title=item['title'],
+                    company=item['company'],
+                    salary=get_salary_from_hh_vacancy(item['salary']),
+                    link=item['link']
+                ))
+
+        elif item['source'] == 'sj':
+
+            vacancies_list.append(
+                SJVacancy(
+                    title=item['title'],
+                    company=item['company'],
+                    salary=item['salary'] if item['salary'] is not None else 0,
+                    link=item['link']
+                ))
+    return vacancies_list
